@@ -29,7 +29,15 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <style type="text/css">
-      /* Base styles apply to screen */
+      /* Responsive base font size for better scaling */
+      html {
+        font-size: 14px;
+      }
+      @media (min-width: 768px) {
+        html {
+          font-size: 16px;
+        }
+      }
       body {
         /* intentional */
       }

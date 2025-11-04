@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Notification, User } from '../../types';
-import { sendNotification, onNotificationsUpdate, onUsersUpdate } from '../../services/api';
-import { BellIcon } from '../icons';
+import { Notification, User, DailyMenu, MealType } from '../../types';
+import { sendNotification, onNotificationsUpdate, onUsersUpdate, getMenuForDay } from '../../services/api';
+import { BellIcon, CalendarIcon } from '../icons';
 
 const NotificationManager: React.FC = () => {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [requiresAction, setRequiresAction] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   
   const [pastNotifications, setPastNotifications] = useState<Notification[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -52,6 +53,48 @@ const NotificationManager: React.FC = () => {
     return { yes, no, noResponse };
   };
 
+  const formatMenuForNotification = (menu: DailyMenu): string => {
+    let message = '';
+    const mealTypes = [MealType.BREAKFAST, MealType.LUNCH, MealType.SNACKS, MealType.DINNER];
+    mealTypes.forEach(mealType => {
+        if (menu[mealType].length > 0) {
+            message += `${mealType}: ${menu[mealType].map(item => item.name).join(', ')}. `;
+        }
+    });
+    return message.trim();
+  };
+
+  const handlePublishMenu = async () => {
+    if (!window.confirm("Are you sure you want to publish tomorrow's menu to all employees?")) {
+        return;
+    }
+    setIsPublishing(true);
+    try {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const menu = await getMenuForDay(tomorrow);
+        const message = formatMenuForNotification(menu);
+
+        if (!message) {
+            alert("Tomorrow's menu is empty. Cannot publish.");
+            setIsPublishing(false);
+            return;
+        }
+
+        const title = `Menu for Tomorrow (${tomorrow.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })})`;
+        
+        await sendNotification({ title, message, requiresAction: false });
+        alert("Tomorrow's menu has been published successfully!");
+
+    } catch (error) {
+        console.error("Failed to publish menu", error);
+        alert("Could not publish the menu. Please check if the menu is set for tomorrow.");
+    } finally {
+        setIsPublishing(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div>
@@ -73,6 +116,24 @@ const NotificationManager: React.FC = () => {
             {isSubmitting ? 'Sending...' : 'Send to All Employees'}
           </button>
         </form>
+
+        <div className="mt-8">
+            <h3 className="text-xl font-bold mb-4 text-onSurface border-t pt-6">Quick Actions</h3>
+            <div className="bg-slate-50 p-6 rounded-lg border space-y-4">
+                <div>
+                    <h4 className="font-semibold text-slate-800">Publish Tomorrow's Menu</h4>
+                    <p className="text-sm text-slate-600 mb-3">This will send a notification to all employees (working from office tomorrow) with the full menu for all meals.</p>
+                    <button 
+                        onClick={handlePublishMenu} 
+                        disabled={isPublishing}
+                        className="w-full py-2 flex items-center justify-center bg-secondary text-onPrimary font-semibold rounded-lg hover:bg-orange-600 disabled:bg-slate-400"
+                    >
+                        <CalendarIcon className="w-5 h-5 mr-2" />
+                        {isPublishing ? 'Publishing...' : "Publish Menu"}
+                    </button>
+                </div>
+            </div>
+        </div>
       </div>
 
       <div>

@@ -1,13 +1,14 @@
 import React from 'react';
 import { User } from '../types';
-import { LogoutIcon, UserIcon, BellIcon } from './icons';
+import { LogoutIcon, UserIcon, BellIcon, MenuIcon } from './icons';
 
 interface HeaderProps {
   user: User;
   onLogout: () => void;
+  onToggleSidebar: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ user, onLogout, onToggleSidebar }) => {
   // A simple way to toggle the notification viewer.
   // In a larger app, this state would be managed by a context or state manager.
   const handleBellClick = () => {
@@ -19,8 +20,15 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
 
   return (
     <header className="bg-surface shadow-md print-hidden h-16 flex-shrink-0">
-      <div className="container mx-auto px-4 md:px-8 h-full flex justify-end items-center">
-        <div className="flex items-center space-x-4">
+      <div className="container mx-auto px-4 md:px-8 h-full flex justify-between md:justify-end items-center">
+         <button
+            onClick={onToggleSidebar}
+            className="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            aria-label="Open sidebar"
+          >
+            <MenuIcon className="w-6 h-6" />
+          </button>
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button 
             onClick={handleBellClick}
             className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"

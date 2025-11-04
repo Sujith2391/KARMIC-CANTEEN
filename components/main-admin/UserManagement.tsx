@@ -55,14 +55,14 @@ const UserManagement: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
         <h3 className="text-2xl font-bold text-onSurface flex items-center">
           <UsersIcon className="w-7 h-7 mr-2" />
           User Management
         </h3>
         <button
           onClick={openAddModal}
-          className="px-4 py-2 font-semibold bg-primary text-onPrimary rounded-lg shadow hover:bg-primary-dark transition"
+          className="px-4 py-2 font-semibold bg-primary text-onPrimary rounded-lg shadow hover:bg-primary-dark transition self-start sm:self-auto"
         >
           + Add User
         </button>

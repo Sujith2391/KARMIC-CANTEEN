@@ -109,13 +109,15 @@ const WeeklyMealSelector: React.FC<WeeklyMealSelectorProps> = ({ user, simulated
   });
 
   return (
-    <div className="bg-surface p-6 rounded-xl shadow-lg space-y-4">
-        <div className="flex justify-between items-center">
-            <button onClick={() => changeWeek('prev')} className="px-4 py-2 bg-slate-200 rounded-md hover:bg-slate-300">&larr; Previous Week</button>
-            <h2 className="text-xl font-bold">
+    <div className="bg-surface p-4 sm:p-6 rounded-xl shadow-lg space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h2 className="text-lg sm:text-xl font-bold text-center sm:text-left order-2 sm:order-1 flex-1">
                 Week of {weekStartDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
             </h2>
-            <button onClick={() => changeWeek('next')} className="px-4 py-2 bg-slate-200 rounded-md hover:bg-slate-300">Next Week &rarr;</button>
+            <div className="flex w-full sm:w-auto justify-between sm:justify-start sm:space-x-2 order-1 sm:order-2">
+              <button onClick={() => changeWeek('prev')} className="px-4 py-2 bg-slate-200 rounded-md hover:bg-slate-300">&larr; Prev</button>
+              <button onClick={() => changeWeek('next')} className="px-4 py-2 bg-slate-200 rounded-md hover:bg-slate-300">Next &rarr;</button>
+            </div>
         </div>
         {loading ? (
              <div className="text-center p-20">Loading weekly menu...</div>

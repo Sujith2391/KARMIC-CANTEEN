@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [adminView, setAdminView] = useState('stats');
   const [view, setView] = useState<'login' | 'register' | 'app'>('login');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('karmic-canteen-user');
@@ -38,6 +39,7 @@ const App: React.FC = () => {
 
   const handleAdminNavigate = (view: string) => {
     setAdminView(view);
+    setIsSidebarOpen(false); // Close sidebar on navigation
   };
 
   const renderContent = () => {
@@ -50,15 +52,18 @@ const App: React.FC = () => {
     
     return (
       <>
+        {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" aria-hidden="true" />}
         <NotificationViewer user={currentUser} />
         <div className="min-h-screen bg-background font-sans flex">
           <Sidebar 
               user={currentUser} 
               adminView={adminView} 
               onAdminNavigate={handleAdminNavigate}
+              isOpen={isSidebarOpen}
+              onClose={() => setIsSidebarOpen(false)}
           />
           <div className="flex-1 flex flex-col h-screen overflow-hidden">
-            <Header user={currentUser} onLogout={handleLogout} />
+            <Header user={currentUser} onLogout={handleLogout} onToggleSidebar={() => setIsSidebarOpen(prev => !prev)} />
             <main className="flex-1 p-4 md:p-8 overflow-y-auto">
               {(() => {
                     switch (currentUser.role) {

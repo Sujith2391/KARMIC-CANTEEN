@@ -48,9 +48,15 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ onRegisterSucce
     try {
       const registeredUser = await registerUser(newUser);
       onRegisterSuccess(registeredUser);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during registration.');
+    } catch (err) {
+      // Fix: Robustly handle the caught error to resolve issues with 'err', 'setError' being not found.
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An error occurred during registration.');
+      }
     } finally {
+      // Fix: Ensure setLoading is called to resolve 'setLoading' not being found.
       setLoading(false);
     }
   };
@@ -60,7 +66,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ onRegisterSucce
       <div className="mb-8">
         <Logo className="h-12 w-auto" />
       </div>
-      <div className="w-full max-w-md p-8 space-y-6 bg-surface rounded-2xl shadow-lg">
+      <div className="w-full max-w-md p-6 sm:p-8 space-y-6 bg-surface rounded-2xl shadow-lg">
         <div>
           <h2 className="text-2xl font-bold text-center text-onSurface">Create Your Account</h2>
           <p className="mt-2 text-center text-slate-500">Join the Karmic Canteen portal.</p>

@@ -29,11 +29,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, activeView }) => 
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-onSurface">Admin Dashboard</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-onSurface">Admin Dashboard</h2>
         <p className="text-slate-500">Welcome, {user.name}. Manage canteen operations here.</p>
       </div>
 
-      <div className="bg-surface p-6 rounded-xl shadow-lg min-h-[500px]">
+      <div className="bg-surface p-4 sm:p-6 rounded-xl shadow-lg min-h-[500px]">
         {renderContent()}
       </div>
     </div>

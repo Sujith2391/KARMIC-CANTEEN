@@ -64,9 +64,9 @@ const ConfirmationStats: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4 print-hidden">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 print-hidden">
         <h3 className="text-2xl font-bold text-onSurface">Today's Meal Report</h3>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 self-start sm:self-center">
             <span className="text-sm text-slate-500">Last updated: {lastUpdated}</span>
             <button
             onClick={() => window.print()}

@@ -71,7 +71,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ user }) => {
   return (
     <div className="container mx-auto space-y-6">
        <div>
-        <h2 className="text-3xl font-bold text-onSurface">Weekly Meal Planner</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-onSurface">Weekly Meal Planner</h2>
         <p className="text-slate-500">Select your meals for the upcoming week. Changes for a day must be made by 12:30 PM of the previous day.</p>
       </div>
 

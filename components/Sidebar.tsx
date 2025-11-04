@@ -1,12 +1,14 @@
 import React from 'react';
 import { User, UserRole } from '../types';
 import Logo from './Logo';
-import { StatsIcon, MenuIcon, FeedbackIcon, UsersIcon, BellIcon } from './icons';
+import { StatsIcon, MenuIcon, FeedbackIcon, UsersIcon, BellIcon, CloseIcon } from './icons';
 
 interface SidebarProps {
   user: User;
   adminView: string;
   onAdminNavigate: (view: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const NavItem: React.FC<{
@@ -32,11 +34,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   user,
   adminView,
   onAdminNavigate,
+  isOpen,
+  onClose,
 }) => {
   return (
-    <aside className="w-64 bg-slate-800 text-white flex-col p-4 space-y-6 flex-shrink-0 hidden md:flex">
-      <div className="px-2">
-        <Logo textColorClassName="text-white" />
+    <aside className={`w-64 bg-slate-800 text-white flex-col p-4 space-y-6 flex-shrink-0 flex fixed md:relative inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <div className="flex justify-between items-center">
+        <div className="px-2">
+            <Logo textColorClassName="text-white" />
+        </div>
+        <button onClick={onClose} className="md:hidden p-1 text-slate-300 hover:text-white rounded-full hover:bg-slate-700" aria-label="Close sidebar">
+            <CloseIcon className="w-6 h-6"/>
+        </button>
       </div>
 
       <nav className="flex-1 space-y-2">
