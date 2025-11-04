@@ -1,6 +1,8 @@
 // This file simulates a Firestore database connection for development purposes.
 import { User, UserRole, DailyMenu, MealType, MealConfirmation, Feedback, WorkLocation, Notification, DailyWorkPlan } from '../types';
 
+const LOCAL_STORAGE_KEY = 'karmic-canteen-db-store';
+
 // --- MOCK DATABASE STORE ---
 const MOCK_EMPLOYEES: User[] = [
   { id: 'emp123', name: 'Alex Ray', email: 'alex.ray@karmic.co.in', password: 'password', role: UserRole.EMPLOYEE, employeeId: 'K001', mobileNumber: '9876543210', workLocation: WorkLocation.MAIN_OFFICE },
@@ -67,7 +69,7 @@ const mockWeeklyMenu: Omit<DailyMenu, 'date'>[] = [
     },
 ];
 
-let mockConfirmations: MealConfirmation[] = [];
+const mockConfirmations: MealConfirmation[] = [];
 
 const mockFeedback: Feedback[] = [
     { id: 'fb1', userId: 'emp123', userName: 'Alex Ray', date: getTodaysDateString(), mealType: MealType.LUNCH, rating: 4, comment: 'The chicken curry was great, but a bit too spicy for me.' },
@@ -78,16 +80,40 @@ const mockNotifications: Notification[] = [
     { id: 'notif1', title: 'Diwali Celebration!', message: 'Join us for a special Diwali celebration lunch this Friday. Are you attending?', timestamp: Date.now() - 86400000, requiresAction: true, responses: { 'emp123': 'yes', 'emp124': 'no' } },
 ];
 
-const dbStore = {
+
+const loadInitialData = () => {
+  const savedDb = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (savedDb) {
+    try {
+      // Basic check to see if the saved data has the expected structure
+      const parsed = JSON.parse(savedDb);
+      if (parsed.users && parsed.weeklyMenu) {
+        return parsed;
+      }
+    } catch (e) {
+      console.error("Failed to parse DB from localStorage, falling back to default.", e);
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
+  return {
     users: [...MOCK_EMPLOYEES, MOCK_ADMIN, MOCK_ADMIN_2, MOCK_MAIN_ADMIN].map(u => ({ id: u.id, ...u })),
     weeklyMenu: mockWeeklyMenu.map((m, i) => ({ id: String(i), ...m })),
     confirmations: mockConfirmations.map(c => ({ id: `${c.userId}-${c.date}`, ...c })),
     feedback: mockFeedback.map(f => ({ id: f.id, ...f })),
     notifications: mockNotifications.map(n => ({ id: n.id, ...n })),
     dailyWorkPlans: [] as (DailyWorkPlan & { id: string })[],
+  };
 };
 
-type CollectionName = keyof typeof dbStore;
+let dbStore = loadInitialData();
+
+const saveDb = () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dbStore));
+};
+
+// Fix: Use Extract to ensure CollectionName is always a string type. This resolves multiple downstream errors
+// where `keyof` was being inferred as `string | number | symbol`, causing issues with indexing and string methods.
+type CollectionName = Extract<keyof typeof dbStore, string>;
 const listeners: { [key: string]: Function[] } = {
     users: [], weeklyMenu: [], confirmations: [], feedback: [], notifications: [], dailyWorkPlans: [],
 };
@@ -129,6 +155,7 @@ export const updateDoc = async (docRef: { collectionPath: CollectionName, docId:
     if (docIndex > -1) {
         collection[docIndex] = { ...collection[docIndex], ...data };
     }
+    saveDb();
     notifyListeners(docRef.collectionPath);
 };
 
@@ -141,6 +168,7 @@ export const setDoc = async (docRef: { collectionPath: CollectionName, docId: st
     } else {
         collection.push({ ...data, id: docRef.docId } as any);
     }
+    saveDb();
     notifyListeners(docRef.collectionPath);
 };
 
@@ -149,6 +177,7 @@ export const addDoc = async (collectionRef: { path: CollectionName }, data: any)
     const newId = `${collectionRef.path.slice(0, -1)}${Date.now()}`;
     const newDoc = { id: newId, ...data };
     dbStore[collectionRef.path].push(newDoc as any);
+    saveDb();
     notifyListeners(collectionRef.path);
     return { id: newId };
 };
@@ -156,6 +185,7 @@ export const addDoc = async (collectionRef: { path: CollectionName }, data: any)
 export const deleteDoc = async (docRef: { collectionPath: CollectionName, docId: string }) => {
     await new Promise(res => setTimeout(res, 50));
     dbStore[docRef.collectionPath] = dbStore[docRef.collectionPath].filter(d => d.id !== docRef.docId) as any;
+    saveDb();
     notifyListeners(docRef.collectionPath);
 };
 
