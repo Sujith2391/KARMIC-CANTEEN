@@ -5,7 +5,7 @@ import { StatsIcon, MenuIcon, FeedbackIcon, UsersIcon, BellIcon, CloseIcon } fro
 
 interface SidebarProps {
   user: User;
-  adminView: string;
+  activeView: string;
   onAdminNavigate: (view: string) => void;
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +32,7 @@ const NavItem: React.FC<{
 
 const Sidebar: React.FC<SidebarProps> = ({
   user,
-  adminView,
+  activeView,
   onAdminNavigate,
   isOpen,
   onClose,
@@ -54,37 +54,51 @@ const Sidebar: React.FC<SidebarProps> = ({
             <NavItem 
               icon={<StatsIcon className="w-5 h-5" />} 
               label="Live Stats" 
-              isActive={adminView === 'stats'}
+              isActive={activeView === 'stats'}
               onClick={() => onAdminNavigate('stats')}
             />
             <NavItem 
               icon={<MenuIcon className="w-5 h-5" />} 
               label="Menu Management" 
-              isActive={adminView === 'menu'}
+              isActive={activeView === 'menu'}
               onClick={() => onAdminNavigate('menu')}
-            />
-            <NavItem 
-              icon={<FeedbackIcon className="w-5 h-5" />} 
-              label="Feedback" 
-              isActive={adminView === 'feedback'}
-              onClick={() => onAdminNavigate('feedback')}
             />
              <NavItem 
               icon={<BellIcon className="w-5 h-5" />} 
               label="Notifications" 
-              isActive={adminView === 'notifications'}
+              isActive={activeView === 'notifications'}
               onClick={() => onAdminNavigate('notifications')}
             />
           </>
         )}
 
         {user.role === UserRole.MAIN_ADMIN && (
-          <NavItem 
-            icon={<UsersIcon className="w-5 h-5" />} 
-            label="User Management" 
-            isActive={true} // Only one option for main admin
-            onClick={() => {}} // No-op, it's the only view
-          />
+          <>
+            <NavItem 
+                icon={<StatsIcon className="w-5 h-5" />} 
+                label="Dashboard" 
+                isActive={activeView === 'dashboard'}
+                onClick={() => onAdminNavigate('dashboard')}
+            />
+            <NavItem 
+                icon={<UsersIcon className="w-5 h-5" />} 
+                label="User Management" 
+                isActive={activeView === 'users'}
+                onClick={() => onAdminNavigate('users')}
+            />
+            <NavItem 
+                icon={<FeedbackIcon className="w-5 h-5" />} 
+                label="Feedback" 
+                isActive={activeView === 'feedback'}
+                onClick={() => onAdminNavigate('feedback')}
+            />
+            <NavItem 
+                icon={<BellIcon className="w-5 h-5" />} 
+                label="Notifications" 
+                isActive={activeView === 'notifications'}
+                onClick={() => onAdminNavigate('notifications')}
+            />
+          </>
         )}
         
         {user.role === UserRole.EMPLOYEE && (

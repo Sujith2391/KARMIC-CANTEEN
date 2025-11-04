@@ -10,11 +10,10 @@ interface NotificationViewerProps {
 const NotificationViewer: React.FC<NotificationViewerProps> = ({ user }) => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
-    const [shouldReceive, setShouldReceive] = useState(false);
+    const [tomorrowsEffectiveLocation, setTomorrowsEffectiveLocation] = useState<WorkLocation | null>(null);
 
     useEffect(() => {
         if (user.role !== UserRole.EMPLOYEE) {
-            setShouldReceive(false);
             return;
         }
 
@@ -22,22 +21,17 @@ const NotificationViewer: React.FC<NotificationViewerProps> = ({ user }) => {
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowDateString = tomorrow.toISOString().split('T')[0];
 
-        // Listen for changes to tomorrow's work plan
-        const unsub = onWorkPlanUpdateForDate(user.id, tomorrowDateString, (plan) => {
-            // Use tomorrow's plan if set, otherwise fall back to default location
-            const effectiveLocation = plan ? plan.location : user.workLocation;
-            setShouldReceive(effectiveLocation === WorkLocation.MAIN_OFFICE);
+        const unsubPlan = onWorkPlanUpdateForDate(user.id, tomorrowDateString, (plan) => {
+            setTomorrowsEffectiveLocation(plan ? plan.location : user.workLocation);
         });
 
-        return () => unsub();
-    }, [user.id, user.role, user.workLocation]);
+        const unsubNotifications = onNotificationsUpdate(setNotifications);
 
-    useEffect(() => {
-        if (shouldReceive) {
-            const unsub = onNotificationsUpdate(setNotifications);
-            return () => unsub();
-        }
-    }, [shouldReceive]);
+        return () => {
+            unsubPlan();
+            unsubNotifications();
+        };
+    }, [user.id, user.role, user.workLocation]);
     
     useEffect(() => {
         const bell = document.querySelector('[aria-label="Toggle notifications"]');
@@ -58,7 +52,18 @@ const NotificationViewer: React.FC<NotificationViewerProps> = ({ user }) => {
         }
     };
     
-    if (!shouldReceive) return null;
+    if (user.role !== UserRole.EMPLOYEE) {
+        return null;
+    }
+
+    const filteredNotifications = notifications.filter(n => {
+        // Show notification if target is 'all'
+        if (n.target === 'all') {
+            return true;
+        }
+        // For 'office_only' or undefined (backward compatibility), show only if employee is in office tomorrow.
+        return tomorrowsEffectiveLocation === WorkLocation.MAIN_OFFICE;
+    });
 
     return (
         <div id="notification-viewer" className={`fixed top-0 right-0 h-full bg-surface shadow-2xl z-40 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'} w-80 max-w-[90vw]`}>
@@ -70,7 +75,7 @@ const NotificationViewer: React.FC<NotificationViewerProps> = ({ user }) => {
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-3">
-                    {notifications.length > 0 ? notifications.map(n => (
+                    {filteredNotifications.length > 0 ? filteredNotifications.map(n => (
                         <div key={n.id} className="bg-slate-50 p-3 rounded-lg border">
                             <p className="font-semibold text-onSurface">{n.title}</p>
                             <p className="text-sm text-slate-700">{n.message}</p>

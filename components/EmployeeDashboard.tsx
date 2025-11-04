@@ -4,6 +4,7 @@ import { updateUser, getWorkPlanForDate, updateWorkPlan } from '../services/api'
 import WeeklyMealSelector from './WeeklyMealSelector';
 import MealSelectionReminder from './MealSelectionReminder';
 import DailyWorkPlanner from './DailyWorkPlanner';
+import MealTimeNotifier from './MealTimeNotifier';
 
 interface EmployeeDashboardProps {
   user: User;
@@ -123,7 +124,8 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ user }) => {
         </div>
       </div>
       
-      <MealSelectionReminder user={currentUser} simulatedTime={simulatedTime} tomorrowsLocation={tomorrowsLocation} />
+      <MealSelectionReminder user={currentUser} simulatedTime={simulatedTime} />
+      <MealTimeNotifier user={currentUser} simulatedTime={simulatedTime} />
 
       <WeeklyMealSelector user={currentUser} simulatedTime={simulatedTime} />
     </div>

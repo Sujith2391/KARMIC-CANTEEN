@@ -12,14 +12,20 @@ import UserList from './components/UserList';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [adminView, setAdminView] = useState('stats');
+  const [activeView, setActiveView] = useState('stats');
   const [view, setView] = useState<'login' | 'register' | 'app'>('login');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('karmic-canteen-user');
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+      const user = JSON.parse(storedUser);
+      setCurrentUser(user);
+       if (user.role === UserRole.MAIN_ADMIN) {
+        setActiveView('dashboard');
+      } else {
+        setActiveView('stats');
+      }
       setView('app');
     }
   }, []);
@@ -27,18 +33,23 @@ const App: React.FC = () => {
   const handleLogin = (user: User) => {
     setCurrentUser(user);
     localStorage.setItem('karmic-canteen-user', JSON.stringify(user));
+    if (user.role === UserRole.MAIN_ADMIN) {
+        setActiveView('dashboard');
+    } else {
+        setActiveView('stats');
+    }
     setView('app');
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setAdminView('stats');
+    setActiveView('stats');
     localStorage.removeItem('karmic-canteen-user');
     setView('login');
   };
 
   const handleAdminNavigate = (view: string) => {
-    setAdminView(view);
+    setActiveView(view);
     setIsSidebarOpen(false); // Close sidebar on navigation
   };
 
@@ -57,7 +68,7 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-background font-sans flex">
           <Sidebar 
               user={currentUser} 
-              adminView={adminView} 
+              activeView={activeView} 
               onAdminNavigate={handleAdminNavigate}
               isOpen={isSidebarOpen}
               onClose={() => setIsSidebarOpen(false)}
@@ -68,9 +79,9 @@ const App: React.FC = () => {
               {(() => {
                     switch (currentUser.role) {
                       case UserRole.MAIN_ADMIN:
-                        return <MainAdminDashboard user={currentUser} />;
+                        return <MainAdminDashboard user={currentUser} activeView={activeView} />;
                       case UserRole.ADMIN:
-                        return <AdminDashboard user={currentUser} activeView={adminView} />;
+                        return <AdminDashboard user={currentUser} activeView={activeView} />;
                       case UserRole.EMPLOYEE:
                         return <EmployeeDashboard user={currentUser} />;
                       default:

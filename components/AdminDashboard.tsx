@@ -2,7 +2,6 @@ import React from 'react';
 import { User } from '../types';
 import ConfirmationStats from './admin/ConfirmationStats';
 import MenuManager from './admin/MenuManager';
-import FeedbackViewer from './admin/FeedbackViewer';
 import NotificationManager from './admin/NotificationManager';
 
 interface AdminDashboardProps {
@@ -17,8 +16,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, activeView }) => 
         return <ConfirmationStats />;
       case 'menu':
         return <MenuManager />;
-      case 'feedback':
-        return <FeedbackViewer />;
       case 'notifications':
         return <NotificationManager />;
       default:
@@ -29,8 +26,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, activeView }) => 
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-onSurface">Admin Dashboard</h2>
-        <p className="text-slate-500">Welcome, {user.name}. Manage canteen operations here.</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-onSurface">Canteen Management</h2>
+        <p className="text-slate-500">Welcome, {user.name}. Manage daily meal operations here.</p>
       </div>
 
       <div className="bg-surface p-4 sm:p-6 rounded-xl shadow-lg min-h-[500px]">

@@ -79,6 +79,7 @@ export interface Notification {
   timestamp: number;
   requiresAction: boolean;
   responses?: { [userId: string]: 'yes' | 'no' };
+  target?: 'all' | 'office_only';
 }
 
 export interface DailyWorkPlan {
